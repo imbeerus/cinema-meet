@@ -38,6 +38,10 @@ namespace CinemaMeet {
 
 		void ClearMainComboBoxes()
 		{
+			AlphabetComboBox->Items->Clear();
+			CountriesComboBox->Items->Clear();
+			GenresComboBox->Items->Clear();
+			YearsComboBox->Items->Clear();
 			AlphabetComboBox->Text = String::Empty;
 			CountriesComboBox->Text = String::Empty;
 			GenresComboBox->Text = String::Empty;
