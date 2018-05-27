@@ -1097,7 +1097,7 @@ namespace CinemaMeet {
 					catch (Exception^) {
 					}
 				}
-				return System::Convert::ToString(Math::Round(sum / (double) count));
+				return System::Convert::ToString(Math::Round(sum / (double) count, 1));
 			}
 
 	public: void InitMoviesArray()
