@@ -32,7 +32,7 @@ public:
 	System::String^ GetRuntimeStr();
 
 	array<System::String^>^ ToStrArray();
-	System::Windows::Forms::ListViewItem^ ToListViewItem();
+	System::Windows::Forms::ListViewItem^ ToListViewItem(System::String^, System::String^);
 
 	static void WriteMovie(Movie^);
 	static Movie^ ReadMovie(System::String^);

@@ -33,10 +33,10 @@ Movie^ Movie::ReadMovie(System::String^ movieTitle)
 	return movie;
 }
 
-System::Windows::Forms::ListViewItem^ Movie::ToListViewItem() {
+System::Windows::Forms::ListViewItem^ Movie::ToListViewItem(System::String^ guestScore, System::String^ juryScore) {
 	return (gcnew System::Windows::Forms::ListViewItem(gcnew cli::array< System::String^  >(8) {
 		Title,
-			GetGenersStr(), Country, System::Convert::ToString(Year), Director->Name, Writer->Name, System::Convert::ToString("TODO"), System::Convert::ToString("TODO")
+			GetGenersStr(), Country, System::Convert::ToString(Year), Director->Name, Writer->Name, guestScore, juryScore
 	}, -1));
 }
 

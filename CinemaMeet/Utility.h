@@ -26,10 +26,7 @@ namespace Utility
 				if (sw) delete (System::IDisposable^) sw;
 			}
 		}
-		catch (System::Exception^ e)
-		{
-			System::Console::WriteLine("Файл не может быть записан:");
-			System::Console::WriteLine(e->Message);
+		catch (System::Exception^){
 		}
 		return;
 	}

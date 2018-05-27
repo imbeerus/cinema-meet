@@ -933,7 +933,9 @@ namespace CinemaMeet {
 	{
 		switch (pageIndex) {
 		case 0:
-			InitMoviesItems();
+			InitMoviesArray();
+			InitGuestsArray();
+			InitJuryArray();
 			UpdateMovieListView();
 			break;
 		case 1:
@@ -1057,7 +1059,8 @@ namespace CinemaMeet {
 				return;
 			}
 
-			Movie^ GetMaxSumMovie(array<String^>^ usersArray, int type, int param) {
+			Movie^ GetMaxSumMovie(array<String^>^ usersArray, int type, int param)
+			{
 				Movie^ maxSumMovie;
 				int maxSum = 0;
 				for each (Movie^ movie in MoviesArray) {
@@ -1080,7 +1083,24 @@ namespace CinemaMeet {
 				return maxSumMovie;
 			}
 
-	public: void InitMoviesItems()
+			System::String^ GetMovieScore(System::String^ movieName, array<String^>^ usersArray, int type)
+			{
+				int sum = 0;
+				int count = 0;
+				for each (String^ user in usersArray) {
+					Rating^ rating;
+					try {
+						rating = Rating::ReadRating(user, movieName, type);
+						sum += rating->Score;
+						count++;
+					}
+					catch (Exception^) {
+					}
+				}
+				return System::Convert::ToString(Math::Round(sum / (double) count));
+			}
+
+	public: void InitMoviesArray()
 	{
 		MoviesArray = Movie::ReadMoviesArray();
 		System::Console::WriteLine("MoviesCount: " + MoviesArray->Length);
@@ -1107,7 +1127,12 @@ namespace CinemaMeet {
 	public: void UpdateMovieListView()
 	{
 		array<ListViewItem^>^ MoviesRange = gcnew array<ListViewItem^>(MoviesArray->Length);
-		for (int i = 0; i < MoviesRange->Length; i++) MoviesRange[i] = MoviesArray[i]->ToListViewItem();
+		for (int i = 0; i < MoviesRange->Length; i++) {
+			Movie^ movie = MoviesArray[i];
+			System::String^ userScore = GetMovieScore(movie->Title, GuestsArray, 0);
+			System::String^ juryScore = GetMovieScore(movie->Title, JuryArray, 1);
+			MoviesRange[i] = movie->ToListViewItem(userScore, juryScore);
+		}
 		MoviesListView->Items->Clear();
 		MoviesListView->Items->AddRange(MoviesRange);
 		delete(MoviesRange);
@@ -1159,33 +1184,39 @@ namespace CinemaMeet {
 			 }
 
 			 // Получение середины координаты относительно отностительно двух элементов интерфейса  
-			 int GetCenterOfControls(System::Windows::Forms::Control^ Anchor, System::Windows::Forms::Control^ Obj) { return Anchor->Location.Y + (Anchor->Height - Obj->Height) / 2; }
+			 int GetCenterOfControls(System::Windows::Forms::Control^ Anchor, System::Windows::Forms::Control^ Obj)
+			 { return Anchor->Location.Y + (Anchor->Height - Obj->Height) / 2; }
 
-	private: System::Void AddMovieButton_Click(System::Object^  sender, System::EventArgs^  e) {
+	private: System::Void AddMovieButton_Click(System::Object^  sender, System::EventArgs^  e)
+ {
 		Form^ AddMovieForm = gcnew CinemaMeet::AddMovieForm(this);
 		AddMovieForm->Show();
 	}
 
-	private: System::Void AddGuestButton_Click_1(System::Object^  sender, System::EventArgs^  e) {
+	private: System::Void AddGuestButton_Click_1(System::Object^  sender, System::EventArgs^  e)
+	{
 		GuestsListBox->Items->Add(GuestTextBox->Text);
 		Profile::WriteProfile(GuestTextBox->Text, 0);
 		GuestTextBox->Text = String::Empty;
 	}
 
-	private: System::Void AddUserButton_Click(System::Object^  sender, System::EventArgs^  e) {
+	private: System::Void AddUserButton_Click(System::Object^  sender, System::EventArgs^  e)
+	{
 		UsersListBox->Items->Add(UserTextBox->Text);
 		Profile::WriteProfile(UserTextBox->Text, 1);
 		UserTextBox->Text = String::Empty;
 	}
 
-	private: System::Void AddJuryButton_Click(System::Object^  sender, System::EventArgs^  e) {
+	private: System::Void AddJuryButton_Click(System::Object^  sender, System::EventArgs^  e)
+	{
 		JuryListBox->Items->Add(JuryTextBox->Text);
 		Profile::WriteProfile(JuryTextBox->Text, 2);
 		JuryTextBox->Text = String::Empty;
 	}
 
-	private: System::Void ComboBox_DataChanged(System::Object^  sender, System::EventArgs^  e) {
-		InitMoviesItems();
+	private: System::Void ComboBox_DataChanged(System::Object^  sender, System::EventArgs^  e)
+	{
+		InitMoviesArray();
 
 		bool isAlphabetEmpty = AlphabetComboBox->Text->Equals(String::Empty);
 		bool isGenreEmpty = GenresComboBox->Text->Equals(String::Empty);
@@ -1200,7 +1231,10 @@ namespace CinemaMeet {
 		// Заполнить список фильмами, удовлетворяющим условиям: название, жанр, страна, год
 		array<ListViewItem^>^ MoviesRange = gcnew array<ListViewItem^>(MoviesArray->Length);
 		for (int i = 0; i < MoviesArray->Length; i++) {
-			MoviesRange[i] = MoviesArray[i]->ToListViewItem();
+			Movie^ movie = MoviesArray[i];
+			System::String^ userScore = GetMovieScore(movie->Title, GuestsArray, 0);
+			System::String^ juryScore = GetMovieScore(movie->Title, JuryArray, 1);
+			MoviesRange[i] = MoviesArray[i]->ToListViewItem(userScore, juryScore);
 		}
 		MoviesListView->Items->Clear(); // Очистить список фильмов
 		MoviesListView->Items->AddRange(MoviesRange); // Добавить в список актуальные 
@@ -1277,11 +1311,14 @@ namespace CinemaMeet {
 				 MoviesArray = tempArray;
 			 }
 
-	private: System::Void ResetButton_Click(System::Object^  sender, System::EventArgs^  e) {
+	private: System::Void ResetButton_Click(System::Object^  sender, System::EventArgs^  e)
+	{
 		ClearMainComboBoxes();
 		UpdateData(0);
 	}
-	private: System::Void AddVoteButton_Click(System::Object^  sender, System::EventArgs^  e) {
+
+	private: System::Void AddVoteButton_Click(System::Object^  sender, System::EventArgs^  e)
+	{
 		Form^ RateMovieForm = gcnew CinemaMeet::RateMovieForm(this);
 		RateMovieForm->Show();
 	}
